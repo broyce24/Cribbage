@@ -15,113 +15,148 @@ class Cribbage:
         self.computer = []
         self.crib = []
         self.table = []
-        self.player_deals = True
+        self.player_is_dealer = True
         self.flip_card = None
 
-    # Player is player on first turn
-    def deal(self):
+    def player_deals(self):
         '''
-        Implements the function for dealing cards and selecting crib cards each round.
+        Deals cards when player is the dealer.
         '''
-        print("\nDealing cards...")
+        print("\nYou are the dealer.")
+
         for i in range(12):
             if i % 2:
-                # Non-player gets first card
+                # Computer gets the first card
                 self.computer.append(self.deck.pop(0))
             else:
                 self.player.append(self.deck.pop(0))
         self.player.sort(key=lambda c: c.rank)
         self.computer.sort(key=lambda c: c.rank)
 
-        if self.player_deals:
-            print("Choose two cards to contribute to your crib.")
-        else:
-            print("Choose two cards to contribute to the dealer's crib.")
+        print("Choose two cards to contribute to your crib.")
         for i in range(2):
             print("Hand:", self.player)
             crib_card = int(input(f"Type card index (1 to {6 - i}) to contribute it: "))
             self.crib.append(self.player.pop(crib_card - 1))
-            self.crib.append(self.computer.pop(randint(0, 6 - i - 1)))
-        print("Selection:", self.crib[::2])
+            self.crib.append(self.computer.pop(randint(0, 6 - i - 1)))  # Computer randomly chooses crib cards
+        print("Selection:", self.crib[::2])  # Shows only the player's contribution
 
-        if self.player_deals:
-            cut = randint(0, 39)
-            print(f"Opponent chooses {cut} cards to cut.")
-        else:
-            cut = int(input("Please choose the number of cards to cut (0-39): "))
+        cut = randint(0, 39)
+        print(f"Opponent chooses {cut} cards to cut.")
         self.flip_card = self.deck[cut]
         print("\nFlip card:", self.flip_card)
         print("Hand:", self.player)
-        print("Computer hand:", self.computer)
+        print("Computer hand:", self.computer)  # DEBUGGING
+
+    def computer_deals(self):
+        '''
+        Deals cards when computer is the dealer.
+        '''
+        print('Opponent is the dealer.')
+        self.player_is_dealer = False
+        for i in range(12):
+            if i % 2:
+                # Player gets the first card
+                self.player.append(self.deck.pop(0))
+            else:
+                self.computer.append(self.deck.pop(0))
+        self.player.sort(key=lambda c: c.rank)
+        self.computer.sort(key=lambda c: c.rank)
+
+        print("Choose two cards to contribute to Opponent's crib.")
+        for i in range(2):
+            print("Hand:", self.player)
+            crib_card = int(input(f"Type card index (1 to {6 - i}) to contribute it: "))
+            self.crib.append(self.player.pop(crib_card - 1))
+            self.crib.append(self.computer.pop(randint(0, 6 - i - 1)))  # Computer randomly chooses crib cards
+        print("Selection:", self.crib[::2])  # Shows only the player's contribution
+
+        cut = int(input("How many cards would you like to cut? Enter a number from 0-39: "))
+        print(f"Cutting {cut} cards.")
+        self.flip_card = self.deck[cut]
+        print("\nFlip card:", self.flip_card)
+        print("Hand:", self.player)
+        print("Computer hand:", self.computer)  # DEBUGGING
 
     def peg(self):
         # While players have cards left, alternate placing one card at a time until total of 31.
         # Make copies of the hands so the originals are unaffected
         player_hand = self.player.copy()
         computer_hand = self.computer.copy()
-        players_turn = not self.player_deals
         player_can_play = True
         computer_can_play = True
+        continue_stack = True
         total = 0
 
-        def computer_plays():
-            nonlocal total
-            card_index = randint(0, len(computer_hand) - 1)
-            card = computer_hand[card_index]
-            if card.value + total <= 31:
+        def computer_plays(hand, tot):
+            card_index = randint(0, len(hand) - 1)
+            card = hand[card_index]
+            if card.value + tot <= 31:
                 chosen_card = card
             else:
-                chosen_card = computer_hand[0]
-
+                chosen_card = hand[0]
             print("Computer plays", chosen_card)
-            self.table.append(computer_hand.pop(card_index))
-            total += chosen_card.value
+            self.table.append(hand.pop(card_index))
+            tot += chosen_card.value
             print()
-            print(self.table, "Sum =", total)
+            print(self.table, "Sum =", tot)
+            return hand, tot
 
-        def player_plays():
-            nonlocal total
+        def player_plays(hand, tot):
             print("Available cards:", player_hand)
             while True:
-                player_choice = int(input(f"Type card index (1 to {len(player_hand)}) to play: ")) - 1
-                chosen_card = player_hand[player_choice]
-                if chosen_card.value + total > 31:
+                player_choice = int(input(f"Type card index (1 to {len(hand)}) to play: ")) - 1
+                chosen_card = hand[player_choice]
+                if chosen_card.value + tot > 31:
                     print("Total must not exceed 31. Try again.")
                 else:
                     break
-            self.table.append(player_hand.pop(player_choice))
-            total += chosen_card.value
+            self.table.append(hand.pop(player_choice))
+            tot += chosen_card.value
             print("You play", chosen_card)
             print()
-            print(self.table, "Sum =", total)
-            print()
+            print(self.table, "Sum =", tot)
+            return hand, tot
+
+        def perform_check(p_hand, c_hand, tot):
+            p_can_play = len(p_hand) and (p_hand[0].value + tot <= 31)
+            c_can_play = len(c_hand) and (c_hand[0].value + tot <= 31)
+            return p_can_play, c_can_play
+
 
         # Non dealer goes first
         print("\nLet the pegging begin!")
+        if self.player_is_dealer:
+            computer_hand, total = computer_plays(computer_hand, total)
 
-        while len(player_hand) or len(computer_hand):
-            player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
-            if players_turn:
-                if player_can_play:
-                    player_plays()
-                else:
-                    print("You cannot play.")
-                players_turn = not players_turn
-                computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
-            if computer_can_play:
-                # Computer picks a random card if it can play. If that card would go over 31, it uses the lowest card.
-                computer_plays()
-                players_turn = not players_turn
+        # Here's where it all goes down
+        while len(player_hand) or len(computer_hand):  # while someone has cards left
+            if player_can_play:
+                player_hand, total = player_plays(player_hand, total)
             else:
-                print("Your opponent cannot play.")
-                players_turn = not players_turn
-            print()
+                print("You cannot play.")
+            player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
+            if total == 31 or (not player_can_play and not computer_can_play):
+                print("End of stack!")
+                print(self.table, "Sum =", total, end="\n\n\n")
+                self.table.clear()
+                total = 0
+            if computer_can_play:
+                computer_hand, total = computer_plays(computer_hand, total)
+            else:
+                print("Opponent cannot play.")
+
+            player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
             if total == 31 or (not player_can_play and not computer_can_play):
                 print("End of stack!")
                 print(self.table, "Sum =", total, end="\n\n\n")
                 self.table.clear()
                 total = 0
         print("Pegging completed!")
+
+
+
+
 
     def test_scoring(self):
         score = 0
@@ -152,7 +187,8 @@ class Cribbage:
 
 def main():
     game = Cribbage()
-    game.test_scoring()
+    game.player_deals()
+    game.peg()
 
 
 if __name__ == '__main__':
