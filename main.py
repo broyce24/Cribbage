@@ -98,7 +98,6 @@ class Cribbage:
             print("Computer plays", chosen_card)
             self.table.append(hand.pop(card_index))
             tot += chosen_card.value
-            print()
             print(self.table, "Sum =", tot)
             return hand, tot
 
@@ -114,7 +113,6 @@ class Cribbage:
             self.table.append(hand.pop(player_choice))
             tot += chosen_card.value
             print("You play", chosen_card)
-            print()
             print(self.table, "Sum =", tot)
             return hand, tot
 
@@ -137,10 +135,13 @@ class Cribbage:
                 print("You cannot play.")
             player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
             if total == 31 or (not player_can_play and not computer_can_play):
-                print("End of stack!")
-                print(self.table, "Sum =", total, end="\n\n\n")
+                print("End of stack!\n")
+                #print(self.table, "Sum =", total, end="\n\n\n")
                 self.table.clear()
                 total = 0
+                player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
+            if not len(player_hand) and not len(computer_hand):
+                break
             if computer_can_play:
                 computer_hand, total = computer_plays(computer_hand, total)
             else:
@@ -148,10 +149,11 @@ class Cribbage:
 
             player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
             if total == 31 or (not player_can_play and not computer_can_play):
-                print("End of stack!")
-                print(self.table, "Sum =", total, end="\n\n\n")
+                print("End of stack!\n")
+                #print(self.table, "Sum =", total, end="\n\n\n")
                 self.table.clear()
                 total = 0
+                player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
         print("Pegging completed!")
 
 
