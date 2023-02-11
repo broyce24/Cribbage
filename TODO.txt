@@ -1,0 +1,9 @@
+Make computer choose cards for crib instead of random selection
+
+Use a single variable to store a list of two lists for the players' hands so we can define a function for deal?
+
+Confirm crib choices
+
+Implement scoring for pegging
+
+Pegging should alternate
