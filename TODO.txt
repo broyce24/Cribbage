@@ -6,4 +6,4 @@ Confirm crib choices
 
 Implement scoring for pegging
 
-Pegging should alternate
+Extra points for flipping a jack or having a jack that matches the suit of the flip card

@@ -161,36 +161,46 @@ class Cribbage:
 
 
     def test_scoring(self):
-        score = 0
-        # 15 for 2, 15 for 4, 15 for 6, pair for 8
+        fifteens = 0
+        pairs = 0
+        run_of_three = 0
+        run_of_four = 0
+        run_of_five = 0
+        flush_of_four = 0
+        flush_of_five = 0
+
+        # 15 for 2
+        # 15 for 4
+        # pair for 6
+        # 3-run for 9
+        # 3-run for 12
         hand = [Card(5, 'H'), Card(7, 'D'), Card(7, 'H'), Card(8, 'D'), Card(9, 'D')]
         # Use the powerset (n >= 2) of the list to find all card combos
         def powerset(s):
             return chain.from_iterable(combinations(s, r) for r in range(2, len(s) + 1))
         # Check the sum of each powerset. If it's 15, add +2 to the score.
         card_groups = list(powerset(hand))
+
         print(card_groups)
-        for t in card_groups:
-            total = 0
-            for card in t:
-                total += int(card)
-            if total == 15:
-                score += 2
-        print(score)
-        # Find all pairs
-        for t in card_groups:
-            if len(t) == 2:
-                if t[0].get_rank() == t[1].get_rank():
-                    score += 2
+        print(len(card_groups))
+        for group in card_groups:
+            if sum(map(int, group)) == 15:  # finding fifteens
+                fifteens += 1
+            if len(group) == 2 and group[0].get_rank() == group[1].get_rank():  # finding pairs
+                pairs += 1
         # Find all runs by converting the combos to their values and seeing if they're in the list 1-14
-        all_nums = tuple(range(0, 15))
-        print(set((1, 2, 3)).issubset((0, 1, 2, 3, 4, 5)))
+        all_nums = set(range(0, 15))
+        amount = 0
+        for i in range(25, 9, -1):
+            if set(map(int, card_groups[i])).issubset(all_nums)
+                length = len(card_groups[i])
+                amount += 1
+        return 2 * (fifteens + pairs) + 3 * run_of_three + 4 * run_of_four + 5 * run_of_five + 4 * flush_of_four + 5 * flush_of_five
 
 
 def main():
     game = Cribbage()
-    game.player_deals()
-    game.peg()
+    print(game.test_scoring())
 
 
 if __name__ == '__main__':
