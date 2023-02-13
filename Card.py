@@ -37,6 +37,3 @@ class Card:
                 return rank + '♥'
             case 'D':
                 return rank + '♦'
-
-    def get_rank(self):
-        return self.rank

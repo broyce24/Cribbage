@@ -156,51 +156,53 @@ class Cribbage:
                 player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
         print("Pegging completed!")
 
-
-
-
-
-    def test_scoring(self):
-        fifteens = 0
-        pairs = 0
-        run_of_three = 0
-        run_of_four = 0
-        run_of_five = 0
-        flush_of_four = 0
-        flush_of_five = 0
-
+    def score(self):
+        score = 0
         # 15 for 2
         # 15 for 4
         # pair for 6
         # 3-run for 9
         # 3-run for 12
-        hand = [Card(5, 'H'), Card(7, 'D'), Card(7, 'H'), Card(8, 'D'), Card(9, 'D')]
+        hand = [Card(5, 'H'), Card(7, 'D'), Card(7, 'H'), Card(8, 'D'), Card(9, 'D')]  # DEBUGGING
         # Use the powerset (n >= 2) of the list to find all card combos
         def powerset(s):
             return chain.from_iterable(combinations(s, r) for r in range(2, len(s) + 1))
         # Check the sum of each powerset. If it's 15, add +2 to the score.
         card_groups = list(powerset(hand))
 
-        print(card_groups)
-        print(len(card_groups))
+        print(card_groups)  # DEBUGGING
         for group in card_groups:
             if sum(map(int, group)) == 15:  # finding fifteens
-                fifteens += 1
-            if len(group) == 2 and group[0].get_rank() == group[1].get_rank():  # finding pairs
-                pairs += 1
-        # Find all runs by converting the combos to their values and seeing if they're in the list 1-14
-        all_nums = set(range(0, 15))
-        amount = 0
-        for i in range(25, 9, -1):
-            if set(map(int, card_groups[i])).issubset(all_nums)
-                length = len(card_groups[i])
-                amount += 1
-        return 2 * (fifteens + pairs) + 3 * run_of_three + 4 * run_of_four + 5 * run_of_five + 4 * flush_of_four + 5 * flush_of_five
+                score += 2
+            if len(group) == 2 and group[0].rank == group[1].rank:  # finding pairs
+                score += 2
+
+        # Find all runs by finding the difference between the values in each card group.
+        # A run of three will be (1, 1), a run of four will be (1, 1, 1), etc.
+        # We only need to do the groups of 3 or more cards, which will be indexes 10-25
+        runs = {(-1, -1): 3, (-1, -1, -1): 4, (-1, -1, -1, -1): 5}
+        for i in range(10, 26):
+            group = card_groups[i]
+            d = []
+            for j in range(len(group) - 1):
+                d.append(int(group[j]) - int(group[j+1]))
+            tupled = tuple(d)
+            if tupled in runs:
+                score += runs[tupled]
+
+        # Find flushes. We only need to check groups of 4 cards or more, which are indexes 20-25.
+        for i in range(20, 26):
+            if len({c.suit for c in card_groups[i]}) == 1:  # we have a flush
+                if i == 25:  # this implies it's the group of 5 cards
+                    score += 5
+                else:
+                    score += 4
+        return score
 
 
 def main():
     game = Cribbage()
-    print(game.test_scoring())
+    print(game.score())
 
 
 if __name__ == '__main__':
