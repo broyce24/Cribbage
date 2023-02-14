@@ -95,7 +95,7 @@ class Cribbage:
                 chosen_card = card
             else:
                 chosen_card = hand[0]
-            print("Computer plays", chosen_card)
+            print("Opponent plays", chosen_card)
             self.table.append(hand.pop(card_index))
             tot += chosen_card.value
             print(self.table, "Sum =", tot)
@@ -116,10 +116,10 @@ class Cribbage:
             print(self.table, "Sum =", tot)
             return hand, tot
 
-        def perform_check(p_hand, c_hand, tot):
-            p_can_play = len(p_hand) and (p_hand[0].value + tot <= 31)
-            c_can_play = len(c_hand) and (c_hand[0].value + tot <= 31)
-            return p_can_play, c_can_play
+        #def perform_check(p_hand, c_hand, tot):
+        #    p_can_play = len(p_hand) and (p_hand[0].value + tot <= 31)
+        #    c_can_play = len(c_hand) and (c_hand[0].value + tot <= 31)
+        #    return p_can_play, c_can_play
 
 
         # Non dealer goes first
@@ -133,13 +133,15 @@ class Cribbage:
                 player_hand, total = player_plays(player_hand, total)
             else:
                 print("You cannot play.")
-            player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
+            player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
+            computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
             if total == 31 or (not player_can_play and not computer_can_play):
                 print("End of stack!\n")
                 #print(self.table, "Sum =", total, end="\n\n\n")
                 self.table.clear()
                 total = 0
-                player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
+                player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
+                computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
             if not len(player_hand) and not len(computer_hand):
                 break
             if computer_can_play:
@@ -147,13 +149,15 @@ class Cribbage:
             else:
                 print("Opponent cannot play.")
 
-            player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
+            player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
+            computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
             if total == 31 or (not player_can_play and not computer_can_play):
                 print("End of stack!\n")
                 #print(self.table, "Sum =", total, end="\n\n\n")
                 self.table.clear()
                 total = 0
-                player_can_play, computer_can_play = perform_check(player_hand, computer_hand, total)
+                player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
+                computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
         print("Pegging completed!")
 
     def score(self):
@@ -202,7 +206,8 @@ class Cribbage:
 
 def main():
     game = Cribbage()
-    print(game.score())
+    game.player_deals()
+    game.peg()
 
 
 if __name__ == '__main__':
