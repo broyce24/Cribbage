@@ -16,24 +16,11 @@ class Card:
 
         Ex: 5 of Clubs
         '''
-        match self.rank:
-            case 1:
-                rank = 'A'
-            case 11:
-                rank = 'J'
-            case 12:
-                rank = 'Q'
-            case 13:
-                rank = 'K'
-            case _:
-                rank = str(self.rank)
+        ranks = {1: 'A', 11: 'J', 12: 'Q', 13: 'K'}
+        if self.rank in ranks:
+            rank = ranks[self.rank]
+        else:
+            rank = str(self.rank)
 
-        match self.suit:
-            case 'S':
-                return rank + '♠'
-            case 'C':
-                return rank + '♣'
-            case 'H':
-                return rank + '♥'
-            case 'D':
-                return rank + '♦'
+        suits = {'S': '♠', 'C': '♣', 'H': '♥', 'D': '♦'}
+        return rank + suits[self.suit]

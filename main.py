@@ -25,9 +25,9 @@ class Cribbage:
         Deals cards based on the dealer.
         '''
         # Dealing cards. Non-dealer gets first card.
-        print('You are the dealer.' if player_deals else 'Opponent is the dealer.')
+        print('You are the dealer.' if player_deals else 'Computer is the dealer.')
         for i in range(12):
-            j = i if player_deals else i + 1  # neat trick
+            j = i if player_deals else i + 1  # neat trick to flip parity
             if j % 2:
                 self.computer.append(self.deck.pop(0))
             else:
@@ -36,7 +36,7 @@ class Cribbage:
         self.computer.sort(key=lambda c: c.rank)
 
         # Contributing cards to crib
-        target = 'your' if player_deals else 'Opponent\'s'
+        target = 'your' if player_deals else 'Computer\'s'
         print(f"Choose two cards to contribute to {target} crib.")
         for i in range(2):
             print("Hand:", self.player)
@@ -48,7 +48,7 @@ class Cribbage:
         # Cutting the deck
         if player_deals:
             cut = randint(0, 39)
-            print(f"Opponent chooses {cut} cards to cut.")
+            print(f"Computer chooses {cut} cards to cut.")
         else:
             cut = int(input("How many cards would you like to cut? Enter a number from 0-39: "))
             while True:  # this is just to catch numbers outside the cut range
@@ -66,8 +66,8 @@ class Cribbage:
         print(f"{target} Crib:", self.crib)  # DEBUGGING
 
     def peg(self):
-        self.player = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')]
-        self.computer = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')]
+        #self.player = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')]
+        #self.computer = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')] DeBUGGING
         # While players have cards left, alternate placing one card at a time until total of 31.
         # Make copies of the hands so the originals are unaffected
         player_hand = self.player.copy()
@@ -81,7 +81,7 @@ class Cribbage:
                 chosen_card = card
             else:
                 chosen_card = hand[0]
-            print("Opponent plays", chosen_card)
+            print("Computer plays", chosen_card)
             self.table.append(hand.pop(card_index))
             tot += chosen_card.value
             print(self.table, "Sum =", tot)
@@ -127,15 +127,12 @@ class Cribbage:
 
     def score(self, hand=None):
         score = 0
-        # Use the powerset (n >= 2) of the list to find all card combos
-        def powerset(s):
-            return chain.from_iterable(combinations(s, r) for r in range(2, len(s) + 1))
-        # Check the sum of each powerset. If it's 15, add +2 to the score.
-        card_groups = list(powerset(hand))
+        # Finding fifteens and pairs
+        card_groups = list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1)))
         for group in card_groups:
-            if sum(map(int, group)) == 15:  # finding fifteens
+            if sum(map(int, group)) == 15:
                 score += 2
-            if len(group) == 2 and group[0].rank == group[1].rank:  # finding pairs
+            if len(group) == 2 and group[0].rank == group[1].rank:
                 score += 2
 
         # Find all runs by finding the difference between the values in each card group.
