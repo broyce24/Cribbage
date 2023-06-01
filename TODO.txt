@@ -2,9 +2,12 @@ CRUCIAL:
 
 Implement scoring for pegging
 
+# hand of [9♦, J♠, Q♦, K♥] 7♥ returned a score of 0. Should be 3.
+# crib of [A♥, 10♣, 6♠, 5♥] 7♥ returned a score of 2. Should be 5.
+
 Extra points for flipping a jack or having a jack that matches the suit of the flip card
 
-Pick a card in the deck to decide who deals. note
+Pick a card in the deck to decide who deals.
 
 EXTRA:
 
