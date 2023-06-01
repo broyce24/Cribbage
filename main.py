@@ -157,11 +157,20 @@ class Cribbage:
                     score += 4
         return score
 
+    def scoring(self):
+        if self.player_is_dealer:
+            print("Computer's hand:", self.computer)
+            print("Computer scores", score(self.computer))
+            print("Your hand:", self.player)
+            print("You score",  score(self.player))
+            print("Your crib:", self.crib)
+            print("Crib score:", score(self.crib))
 
 def main():
     game = Cribbage()
     game.deal(False)
     game.peg()
+    game.score()
 
 
 if __name__ == '__main__':
