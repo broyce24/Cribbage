@@ -141,10 +141,6 @@ class Cribbage:
     def scoring(self):
         def get_score(hand):
             score = 0
-            # add flip card to hand for scoring
-            hand.append(self.flip_card)
-            hand.sort(key=lambda c: c.rank)
-            print(hand)
             # Finding fifteens and pairs
             card_groups = list(
                 chain.from_iterable(
@@ -157,42 +153,63 @@ class Cribbage:
                 if len(group) == 2 and group[0].rank == group[1].rank:
                     score += 2
 
-            # Find all runs by finding the difference between the values in each card group.
-            # A run of three will be (1, 1), a run of four will be (1, 1, 1), etc.
-            # We only need to do the groups of 3 or more cards, which will be indexes 10-25
+            # Find all runs
             runs = {(-1, -1): 3, (-1, -1, -1): 4, (-1, -1, -1, -1): 5}
-            for i in range(10, 26):
+            runs_of_4 = 0
+            for i in range(25, 9, -1):
                 group = card_groups[i]
-                d = []
-                for j in range(len(group) - 1):
-                    d.append(int(group[j]) - int(group[j + 1]))
-                tupled = tuple(d)
-                if tupled in runs:
-                    score += runs[tupled]
+                diffs = tuple(
+                    group[i].rank - group[i + 1].rank for i in range(len(group) - 1)
+                )
+                size = len(group)
+                if size == 5:
+                    if diffs in runs:
+                        score += runs[diffs]
+                        break
+                elif size == 4:
+                    if diffs in runs:
+                        score += runs[diffs]
+                        runs_of_4 += 1
+                else:
+                    if runs_of_4 > 0:
+                        break
+                    if diffs in runs:
+                        score += runs[diffs]
 
-            # Find flushes. We only need to check groups of 4 cards or more, which are indexes 20-25.
-            for i in range(20, 26):
+            # Find 4 or 5 card flushes.
+            for i in range(25, 19, -1):
                 if len({c.suit for c in card_groups[i]}) == 1:  # we have a flush
                     if i == 25:  # this implies it's the group of 5 cards
                         score += 5
                     else:
                         score += 4
+                    break
             return score
 
+        full_hand_player = sorted(
+            (self.player + [self.flip_card]), key=lambda c: c.rank
+        )
+        full_hand_computer = sorted(
+            (self.computer + [self.flip_card]), key=lambda c: c.rank
+        )
+        full_hand_crib = sorted((self.crib + [self.flip_card]), key=lambda c: c.rank)
+        player_score = get_score(full_hand_player)
+        computer_score = get_score(full_hand_computer)
+        crib_score = get_score(full_hand_crib)
         if self.player_is_dealer:
-            print("Computer's hand:", self.computer, self.flip_card)
-            print("Computer's score:", get_score(self.computer))
-            print("Your hand:", self.player, self.flip_card)
-            print("Your score:", get_score(self.player))
-            print("Your crib:", self.crib, self.flip_card)
-            print("Crib score:", get_score(self.crib))
+            print("Computer's hand:", full_hand_computer)
+            print("Computer's score:", computer_score)
+            print("Your hand:", full_hand_player)
+            print("Your score:", player_score)
+            print("Your crib:", full_hand_crib)
+            print("Crib score:", crib_score)
         else:
-            print("Your hand:", self.player, self.flip_card)
-            print("Your score:", get_score(self.player))
-            print("Computer's hand:", self.computer, self.flip_card)
-            print("Computer's score:", get_score(self.computer))
-            print("Computer's crib:", self.crib, self.flip_card)
-            print("Crib score:", get_score(self.crib))
+            print("Your hand:", full_hand_player)
+            print("Your score:", player_score)
+            print("Computer's hand:", full_hand_computer)
+            print("Computer's score:", computer_score)
+            print("Your crib:", full_hand_crib)
+            print("Crib score:", crib_score)
 
 
 def main():
