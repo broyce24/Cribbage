@@ -10,7 +10,8 @@ from itertools import chain, combinations
 
 class Cribbage:
     def __init__(self):
-        self.deck = [Card(r, s) for s in "SCHD" for r in range(1, 14)]
+        self.cards = [Card(r, s) for s in "SCHD" for r in range(1, 14)]
+        self.deck = self.cards.copy()
         shuffle(self.deck)
         self.player = []
         self.player_score = 0
@@ -21,7 +22,22 @@ class Cribbage:
         self.player_is_dealer = True
         self.flip_card = None
 
-    def deal(self, player_deals=True):
+    def pick_first_dealer(self):
+        winner = None
+        while winner is None:
+            player_choice = self.deck[
+                int(input("Pick a card from the deck! Type an index from 1-52: ")) - 1
+            ]
+            computer_choice = self.deck[randint(1, 52)]
+            print("The card you chose is", player_choice)
+            print("The computer chose", computer_choice)
+            if player_choice.rank == computer_choice.rank:
+                print("It's a tie! Pick again.")
+                continue
+            else:
+                return player_choice.rank < computer_choice.rank
+
+    def deal(self, player_deals):
         """
         Deals cards based on the dealer.
         """
@@ -136,7 +152,7 @@ class Cribbage:
                 print("End of stack!\n")
                 self.table.clear()
                 total = 0
-        print("Pegging completed!")
+        print("Pegging completed!\n")
 
     def scoring(self):
         def get_score(hand):
@@ -210,13 +226,22 @@ class Cribbage:
             print("Computer's score:", computer_score)
             print("Your crib:", full_hand_crib)
             print("Crib score:", crib_score)
+        self.player.clear()
+        self.computer.clear()
+        self.table.clear()
+        self.crib.clear()
+        self.deck = self.cards.copy()
+        shuffle(self.deck)
 
 
 def main():
     game = Cribbage()
-    game.deal(False)
-    game.peg()
-    game.scoring()
+    player_deals = game.pick_first_dealer()
+    while True:
+        game.deal(player_deals)
+        game.peg()
+        game.scoring()
+        player_deals = not player_deals  # alternate dealer
 
 
 if __name__ == "__main__":
