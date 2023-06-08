@@ -6,7 +6,7 @@ class Card:
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
-        self.value = 10 if rank > 10 else rank
+        self.value = min(10, rank)
 
     def __int__(self):
         return self.value

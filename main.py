@@ -96,6 +96,7 @@ class Cribbage:
         player_hand = self.player.copy()
         computer_hand = self.computer.copy()
         total = 0
+        index = 0
 
         def computer_plays(hand, tot):
             card_index = randint(0, len(hand) - 1)
@@ -142,15 +143,16 @@ class Cribbage:
             )
             if players_turn and player_can_play:
                 player_hand, total = player_plays(player_hand, total)
-                players_turn = (
-                    False if computer_can_play else True
-                )  # Needs to stay player's turn if computer can't play
+                index += 1
+                players_turn = not computer_can_play
             elif computer_can_play:
                 computer_hand, total = computer_plays(computer_hand, total)
+                index += 1
                 players_turn = True
             else:
                 print("End of stack!\n")
                 self.table.clear()
+                index = 0
                 total = 0
         print("Pegging completed!\n")
 
