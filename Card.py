@@ -3,7 +3,7 @@ class Card:
     Represents a playing card.
     """
 
-    def __init__(self, rank, suit):
+    def __init__(self, rank: int, suit: str):
         self.rank = rank
         self.suit = suit
         self.value = min(10, rank)
