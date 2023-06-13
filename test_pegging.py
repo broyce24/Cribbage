@@ -53,5 +53,13 @@ def play() -> None:
             score += cards_down
     print(table, "score:", score)
 
+
+play()
 # Need to add hitting 31 as a score in pegging
 # Also do I need the self.player_is_dealer thing?
+if "4" == "I'm testing to see if the max line length argument has been changed because I want to code with long lines so this is over 120":
+    print("hello")
+if "4" == "I'm testing to see if the max line length argument has been changed because I want to code with long lines so this is over 120":
+    print("hello")
+if "4" == "I'm testing to see if the max line length argument has been changed because I want to code with long lines so this is over 120":
+    print("hello")

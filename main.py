@@ -23,8 +23,7 @@ class Cribbage:
         self.flip_card = None
 
     def pick_first_dealer(self):
-        winner = None
-        while winner is None:
+        while True:
             player_choice = self.deck[
                 int(input("Pick a card from the deck! Type an index from 1-52: ")) - 1
             ]
@@ -34,8 +33,7 @@ class Cribbage:
             if player_choice.rank == computer_choice.rank:
                 print("It's a tie! Pick again.")
                 continue
-            else:
-                return player_choice.rank < computer_choice.rank
+            return player_choice.rank < computer_choice.rank
 
     def deal(self, player_deals):
         """
@@ -77,8 +75,7 @@ class Cribbage:
             while True:  # this is just to catch numbers outside the cut range
                 if 0 <= cut <= 39:
                     break
-                else:
-                    cut = int(input("Try again. Enter a number from 0-39: "))
+                cut = int(input("Try again. Enter a number from 0-39: "))
             print(f"Cutting {cut} cards.")
         self.flip_card = self.deck[cut]
 
