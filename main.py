@@ -156,60 +156,52 @@ class Cribbage:
                 total = 0
         print("Pegging completed!\n")
 
-    def scoring(self):
-        def get_score(hand):
-            score = 0
-            # Finding fifteens and pairs
-            card_groups = list(
-                chain.from_iterable(
-                    combinations(hand, r) for r in range(2, len(hand) + 1)
-                )
-            )
-            for group in card_groups:
-                if sum(map(int, group)) == 15:
-                    score += 2
-                if len(group) == 2 and group[0].rank == group[1].rank:
-                    score += 2
+    @staticmethod
+    def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
+            if not is_sorted:
+                cards = sorted(cards, key = lambda c: c.rank)
+            for i in range(len(cards) - 1):
+                if cards[i].rank - cards[i + 1].rank != -1:
+                    return False
+            return True
 
-            # Find all runs
-            runs = {(-1, -1): 3, (-1, -1, -1): 4, (-1, -1, -1, -1): 5}
-            runs_of_4 = 0
-            for i in range(25, 9, -1):
-                group = card_groups[i]
-                diffs = tuple(
-                    group[i].rank - group[i + 1].rank for i in range(len(group) - 1)
-                )
-                size = len(group)
-                if size == 5:
-                    if diffs in runs:
-                        score += runs[diffs]
-                        break
-                elif size == 4:
-                    if diffs in runs:
-                        score += runs[diffs]
-                        runs_of_4 += 1
-                else:
-                    if runs_of_4 > 0:
-                        break
-                    if diffs in runs:
-                        score += runs[diffs]
-
-            # Find 4 or 5 card flushes.
-            for i in range(25, 19, -1):
-                if len({c.suit for c in card_groups[i]}) == 1:  # we have a flush
-                    if i == 25:  # this implies it's the group of 5 cards
+    @staticmethod
+    def get_score(hand):
+        score = 0
+        card_groups = reversed(list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1))))
+        runs_of_4 = 0
+        runs_of_5 = 0
+        for group in card_groups:
+            if sum(map(int, group)) == 15:
+                score += 2
+            match len(group):
+                case 5:
+                    if len({card.suit for card in group}) == 1:
                         score += 5
-                    else:
+                    if Cribbage.is_run(group):
+                        score += 5
+                        runs_of_5 += 1
+                case 4:
+                    if len({card.suit for card in group}) == 1:
                         score += 4
-                    break
-            return score
+                    if runs_of_5 == 0 and Cribbage.is_run(group):
+                        score += 4
+                        runs_of_4 += 1
+                case 3:
+                    if runs_of_4 + runs_of_5 == 0 and Cribbage.is_run(group):
+                        score += 3
+                case 2:
+                    if len({card.rank for card in group}) == 1:
+                        score += 2
+        return(score)
+    def scoring(self):
 
         full_hand_player = sorted(self.player + [self.flip_card], key=lambda c: c.rank)
         full_hand_computer = sorted(self.computer + [self.flip_card], key=lambda c: c.rank)
         full_hand_crib = sorted((self.crib + [self.flip_card]), key=lambda c: c.rank)
-        player_score = get_score(full_hand_player)
-        computer_score = get_score(full_hand_computer)
-        crib_score = get_score(full_hand_crib)
+        player_score = Cribbage.get_score(full_hand_player)
+        computer_score = Cribbage.get_score(full_hand_computer)
+        crib_score = Cribbage.get_score(full_hand_crib)
         if self.player_is_dealer:
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)

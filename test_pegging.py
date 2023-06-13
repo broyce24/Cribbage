@@ -1,4 +1,5 @@
 from Card import Card
+from itertools import chain, combinations
 
 c1 = Card(5, "D")
 c2 = Card(10, "C")
@@ -12,12 +13,15 @@ table = []
 
 
 def play() -> None:
-    def is_run(cards: list[Card], sorted: bool) -> bool:
-        if not sorted:
-            cards.sort(key = lambda c: c.rank)
-        
+    # test cases: 5, 5, 1, 2, 3
+    def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
+        if not is_sorted:
+            cards = sorted(cards, key = lambda c: c.rank)
+        for i in range(len(cards) - 1):
+            if cards[i].rank - cards[i + 1].rank != -1:
+                return False
         # figure out if a list of unordered cards is a run.
-        pass
+        return True
     score = 0
     ongoing_run = False
     while len(test_hand) > 0:
@@ -44,7 +48,7 @@ def play() -> None:
             else:
                 print("Pair!")
                 score += 2
-        #if cards_down > 2 and is_run(table[])
+        if cards_down > 2 and is_run(table, is_sorted=False):
+            print("Run of", cards_down)
+            score += cards_down
     print(table, "score:", score)
-
-play()
