@@ -52,3 +52,6 @@ def play() -> None:
             print("Run of", cards_down)
             score += cards_down
     print(table, "score:", score)
+
+# Need to add hitting 31 as a score in pegging
+# Also do I need the self.player_is_dealer thing?

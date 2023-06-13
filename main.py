@@ -194,6 +194,7 @@ class Cribbage:
                     if len({card.rank for card in group}) == 1:
                         score += 2
         return(score)
+    
     def scoring(self):
 
         full_hand_player = sorted(self.player + [self.flip_card], key=lambda c: c.rank)
