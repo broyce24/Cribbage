@@ -204,12 +204,8 @@ class Cribbage:
                     break
             return score
 
-        full_hand_player = sorted(
-            (self.player + [self.flip_card]), key=lambda c: c.rank
-        )
-        full_hand_computer = sorted(
-            (self.computer + [self.flip_card]), key=lambda c: c.rank
-        )
+        full_hand_player = sorted(self.player + [self.flip_card], key=lambda c: c.rank)
+        full_hand_computer = sorted(self.computer + [self.flip_card], key=lambda c: c.rank)
         full_hand_crib = sorted((self.crib + [self.flip_card]), key=lambda c: c.rank)
         player_score = get_score(full_hand_player)
         computer_score = get_score(full_hand_computer)
