@@ -23,8 +23,7 @@ class Cribbage:
         self.flip_card = None
 
     def pick_first_dealer(self):
-        winner = None
-        while winner is None:
+        while True:
             player_choice = self.deck[
                 int(input("Pick a card from the deck! Type an index from 1-52: ")) - 1
             ]
@@ -34,8 +33,7 @@ class Cribbage:
             if player_choice.rank == computer_choice.rank:
                 print("It's a tie! Pick again.")
                 continue
-            else:
-                return player_choice.rank < computer_choice.rank
+            return player_choice.rank < computer_choice.rank
 
     def deal(self, player_deals):
         """
@@ -137,9 +135,9 @@ class Cribbage:
         # PEGGING FINALLY GOT IT TO ALTERNATE IN A LOOP
         while len(player_hand) or len(computer_hand):  # while someone has cards left
             # time.sleep(1) debugging
-            player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
-            computer_can_play = len(computer_hand) and (
-                computer_hand[0].value + total <= 31
+            player_can_play = len(player_hand) and player_hand[0].value + total <= 31
+            computer_can_play = (
+                len(computer_hand) and computer_hand[0].value + total <= 31
             )
             if players_turn and player_can_play:
                 player_hand, total = player_plays(player_hand, total)
@@ -158,17 +156,23 @@ class Cribbage:
 
     @staticmethod
     def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
-            if not is_sorted:
-                cards = sorted(cards, key = lambda c: c.rank)
-            for i in range(len(cards) - 1):
-                if cards[i].rank - cards[i + 1].rank != -1:
-                    return False
-            return True
+        if not is_sorted:
+            cards = sorted(cards, key=lambda c: c.rank)
+        for i in range(len(cards) - 1):
+            if cards[i].rank - cards[i + 1].rank != -1:
+                return False
+        return True
 
     @staticmethod
     def get_score(hand):
         score = 0
-        card_groups = reversed(list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1))))
+        card_groups = reversed(
+            list(
+                chain.from_iterable(
+                    combinations(hand, r) for r in range(2, len(hand) + 1)
+                )
+            )
+        )
         runs_of_4 = 0
         runs_of_5 = 0
         for group in card_groups:
@@ -193,12 +197,13 @@ class Cribbage:
                 case 2:
                     if len({card.rank for card in group}) == 1:
                         score += 2
-        return(score)
-    
-    def scoring(self):
+        return score
 
+    def scoring(self):
         full_hand_player = sorted(self.player + [self.flip_card], key=lambda c: c.rank)
-        full_hand_computer = sorted(self.computer + [self.flip_card], key=lambda c: c.rank)
+        full_hand_computer = sorted(
+            self.computer + [self.flip_card], key=lambda c: c.rank
+        )
         full_hand_crib = sorted((self.crib + [self.flip_card]), key=lambda c: c.rank)
         player_score = Cribbage.get_score(full_hand_player)
         computer_score = Cribbage.get_score(full_hand_computer)

@@ -9,9 +9,11 @@ class Card:
         self.value = min(10, rank)
 
     def __int__(self):
+        
         return self.value
 
     def __repr__(self):
+        
         """
         Returns the string representation of a card using emojis
 
@@ -25,3 +27,4 @@ class Card:
 
         suits = {"S": "♠", "C": "♣", "H": "♥", "D": "♦"}
         return rank + suits[self.suit]
+    
