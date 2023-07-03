@@ -75,8 +75,7 @@ class Cribbage:
             while True:  # this is just to catch numbers outside the cut range
                 if 0 <= cut <= 39:
                     break
-                else:
-                    cut = int(input("Try again. Enter a number from 0-39: "))
+                cut = int(input("Try again. Enter a number from 0-39: "))
             print(f"Cutting {cut} cards.")
         self.flip_card = self.deck[cut]
 

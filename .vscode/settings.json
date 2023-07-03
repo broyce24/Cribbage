@@ -1,5 +1,9 @@
 {
     "editor.parameterHints.enabled": false,
     "editor.suggest.showTypeParameters": false,
-    "python.analysis.typeCheckingMode": "off"
+    "python.analysis.typeCheckingMode": "off",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }

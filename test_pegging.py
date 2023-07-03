@@ -12,18 +12,16 @@ test_hand = [c1, c2, c3, c4, c5, c6, c7]
 table = []
 
 
-def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
-    if not is_sorted:
-        cards = sorted(cards, key=lambda c: c.rank)
-    for i in range(len(cards) - 1):
-        if cards[i].rank - cards[i + 1].rank != -1:
-            return False
-    # figure out if a list of unordered cards is a run.
-    return True
-
-
 def play() -> None:
     # test cases: 5, 5, 1, 2, 3
+    def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
+        if not is_sorted:
+            cards = sorted(cards, key=lambda c: c.rank)
+        for i in range(len(cards) - 1):
+            if cards[i].rank - cards[i + 1].rank != -1:
+                return False
+        # figure out if a list of unordered cards is a run.
+        return True
 
     score = 0
     ongoing_run = False
@@ -59,7 +57,6 @@ def play() -> None:
                 run_length += 1
                 if not is_run(table[-1:-run_length:-1], is_sorted=False):
                     break
-
 
     print(table, "score:", score)
 
