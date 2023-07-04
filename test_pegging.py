@@ -12,16 +12,19 @@ test_hand = [c1, c2, c3, c4, c5, c6, c7]
 table = []
 
 
+def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
+    if not is_sorted:
+        cards = sorted(cards, key=lambda c: c.rank)
+    for i in range(len(cards) - 1):
+        if cards[i].rank - cards[i + 1].rank != -1:
+            return False
+    # figure out if a list of unordered cards is a run.
+    return True
+
+
 def play() -> None:
     # test cases: 5, 5, 1, 2, 3
-    def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
-        if not is_sorted:
-            cards = sorted(cards, key=lambda c: c.rank)
-        for i in range(len(cards) - 1):
-            if cards[i].rank - cards[i + 1].rank != -1:
-                return False
-        # figure out if a list of unordered cards is a run.
-        return True
+
 
     score = 0
     ongoing_run = False
@@ -49,19 +52,23 @@ def play() -> None:
             else:
                 print("Pair!")
                 score += 2
-        if cards_down > 2 and is_run(table[-1:-3:-1], is_sorted=False):
+        if cards_down > 2:
             run_length = 3
-            while True:
+            while is_run(table[-1:-(run_length + 1):-1], is_sorted=False):
                 print(f"Run of {run_length}!")
                 score += run_length
                 run_length += 1
-                if not is_run(table[-1:-run_length:-1], is_sorted=False):
-                    break
 
     print(table, "score:", score)
 
 
-play()
+def main():
+    # playing 1, 1, 2 is bugged: thinks 10 8 7 is a run
+    print(is_run([c2, c3, c5], is_sorted=False))
+    play()
+
+if __name__ == '__main__':
+    main()
 # Need to add hitting 31 as a score in pegging
 # Need to recognize runs that don't start at the first card
 # Also do I need the self.player_is_dealer thing?

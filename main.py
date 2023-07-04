@@ -57,9 +57,7 @@ class Cribbage:
             print("Hand:", self.player)
             crib_card = int(input(f"Type card index (1 to {6 - i}) to contribute it: "))
             self.crib.append(self.player.pop(crib_card - 1))
-            self.crib.append(
-                self.computer.pop(randint(0, 6 - i - 1))
-            )  # Computer randomly chooses crib cards
+            self.crib.append(self.computer.pop(randint(0, 6 - i - 1)))  # Computer randomly chooses crib cards
         print("Selection:", self.crib[::2])  # Shows only the player's contribution
 
         # Cutting the deck
@@ -67,11 +65,7 @@ class Cribbage:
             cut = randint(0, 39)
             print(f"Computer chooses {cut} cards to cut.")
         else:
-            cut = int(
-                input(
-                    "How many cards would you like to cut? Enter a number from 0-39: "
-                )
-            )
+            cut = int(input("How many cards would you like to cut? Enter a number from 0-39: "))
             while True:  # this is just to catch numbers outside the cut range
                 if 0 <= cut <= 39:
                     break
@@ -111,9 +105,7 @@ class Cribbage:
         def player_plays(hand, tot):
             print("Available cards:", player_hand)
             while True:
-                player_choice = (
-                    int(input(f"Type card index (1 to {len(hand)}) to play: ")) - 1
-                )
+                player_choice = (int(input(f"Type card index (1 to {len(hand)}) to play: ")) - 1)
                 chosen_card = hand[player_choice]
                 if chosen_card.value + tot <= 31:
                     break
@@ -134,10 +126,8 @@ class Cribbage:
         # PEGGING FINALLY GOT IT TO ALTERNATE IN A LOOP
         while len(player_hand) or len(computer_hand):  # while someone has cards left
             # time.sleep(1) debugging
-            player_can_play = len(player_hand) and player_hand[0].value + total <= 31
-            computer_can_play = (
-                len(computer_hand) and computer_hand[0].value + total <= 31
-            )
+            player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
+            computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
             if players_turn and player_can_play:
                 player_hand, total = player_plays(player_hand, total)
                 index += 1
@@ -154,9 +144,8 @@ class Cribbage:
         print("Pegging completed!\n")
 
     @staticmethod
-    def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
-        if not is_sorted:
-            cards = sorted(cards, key=lambda c: c.rank)
+    def is_run(cards):
+        cards.sort(key=lambda c: c.rank)
         for i in range(len(cards) - 1):
             if cards[i].rank - cards[i + 1].rank != -1:
                 return False
@@ -165,13 +154,7 @@ class Cribbage:
     @staticmethod
     def get_score(hand):
         score = 0
-        card_groups = reversed(
-            list(
-                chain.from_iterable(
-                    combinations(hand, r) for r in range(2, len(hand) + 1)
-                )
-            )
-        )
+        card_groups = reversed(list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1))))
         runs_of_4 = 0
         runs_of_5 = 0
         for group in card_groups:
@@ -200,9 +183,7 @@ class Cribbage:
 
     def scoring(self):
         full_hand_player = sorted(self.player + [self.flip_card], key=lambda c: c.rank)
-        full_hand_computer = sorted(
-            self.computer + [self.flip_card], key=lambda c: c.rank
-        )
+        full_hand_computer = sorted(self.computer + [self.flip_card], key=lambda c: c.rank)
         full_hand_crib = sorted((self.crib + [self.flip_card]), key=lambda c: c.rank)
         player_score = Cribbage.get_score(full_hand_player)
         computer_score = Cribbage.get_score(full_hand_computer)
