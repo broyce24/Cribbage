@@ -1,24 +1,23 @@
 from Card import Card
+import time
 from itertools import chain, combinations
 
-c1 = Card(5, "D")
-c2 = Card(10, "C")
-c3 = Card(8, "H")
-c4 = Card(9, "D")
-c5 = Card(7, "C")
-c6 = Card(9, "C")
-c7 = Card(9, "S")
+c1 = Card(1, "D")
+c2 = Card(2, "C")
+c3 = Card(3, "H")
+c4 = Card(4, "D")
+c5 = Card(5, "C")
+c6 = Card(6, "C")
+c7 = Card(7, "S")
 test_hand = [c1, c2, c3, c4, c5, c6, c7]
 table = []
 
 
-def is_run(cards: list[Card], is_sorted: bool = True) -> bool:
-    if not is_sorted:
-        cards = sorted(cards, key=lambda c: c.rank)
+def is_run(cards):
+    cards.sort(key=lambda c: c.rank)
     for i in range(len(cards) - 1):
         if cards[i].rank - cards[i + 1].rank != -1:
             return False
-    # figure out if a list of unordered cards is a run.
     return True
 
 
@@ -38,8 +37,11 @@ def play() -> None:
         if cards_down == 1:
             continue
         # Scoring below
-        if sum(map(lambda c: c.rank, table)) == 15:
+        if sum(map(int, table)) == 15:
             print("Fifteen!")
+            score += 2
+        elif sum(map(int, table)) == 31:
+            print("Thirty one!")
             score += 2
         if table[-1].rank == table[-2].rank:
             if cards_down > 2 and table[-2].rank == table[-3].rank:
@@ -54,17 +56,14 @@ def play() -> None:
                 score += 2
         if cards_down > 2:
             run_length = 3
-            while is_run(table[-1:-(run_length + 1):-1], is_sorted=False):
-                print(f"Run of {run_length}!")
-                score += run_length
+            while run_length <= cards_down and is_run(table[-run_length:]):
                 run_length += 1
-
+            print(f"Run of {run_length - 1}!")
+            score += run_length
     print(table, "score:", score)
 
 
 def main():
-    # playing 1, 1, 2 is bugged: thinks 10 8 7 is a run
-    print(is_run([c2, c3, c5], is_sorted=False))
     play()
 
 if __name__ == '__main__':
