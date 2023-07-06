@@ -14,7 +14,7 @@ c9 = Card(7, "S")
 c10 = Card(7, "S")
 test_hand = [c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]
 
-table = []
+self.table = []
 
 
 def is_run(cards):
@@ -25,30 +25,30 @@ def is_run(cards):
     return True
 
 
-def play() -> None:
+def play():
     # test cases: 5, 5, 1, 2, 3
 
     score = 0
     ongoing_run = False
     while len(test_hand) > 0:
-        print(table, "score:", score)
+        print(self.table, "score:", score)
         c_index = int(input(f"Select from {test_hand} "))
         if c_index == -1:  # Quit command
             return
-        table.append(test_hand.pop(c_index))
-        cards_down = len(table)
+        self.table.append(test_hand.pop(c_index))
+        cards_down = len(self.table)
         if cards_down == 1:
             continue
         # Scoring below
-        if sum(map(int, table)) == 15:
+        if sum(map(int, self.table)) == 15:
             print("Fifteen!")
             score += 2
-        elif sum(map(int, table)) == 31:
+        elif sum(map(int, self.table)) == 31:
             print("Thirty one!")
             score += 2
-        if table[-1].rank == table[-2].rank:
-            if cards_down > 2 and table[-2].rank == table[-3].rank:
-                if cards_down > 3 and table[-3].rank == table[-4].rank:
+        if self.table[-1].rank == self.table[-2].rank:
+            if cards_down > 2 and self.table[-2].rank == self.table[-3].rank:
+                if cards_down > 3 and self.table[-3].rank == self.table[-4].rank:
                     print("Quads!")
                     score += 12
                 else:
@@ -59,12 +59,12 @@ def play() -> None:
                 score += 2
         if cards_down > 2:
             for i in range(cards_down - 2):
-                if is_run(table[i:]):
+                if is_run(self.table[i:]):
                     run_length = cards_down - i
                     print(f"Run of {run_length}!")
                     score += run_length
                     break
-    print(table, "score:", score)
+    print(self.table, "score:", score)
 
 
 def main():

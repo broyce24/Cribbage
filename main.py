@@ -78,8 +78,7 @@ class Cribbage:
         print("Hand:", self.player)
         print("Computer hand:", self.computer)  # DEBUGGING
         print(f"{target} Crib:", self.crib)  # DEBUGGING
-
-    def peg(self):
+    def pegging_original(self):
         # self.player = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')]
         # self.computer = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')] DeBUGGING
         # While players have cards left, alternate placing one card at a time until total of 31.
@@ -143,6 +142,98 @@ class Cribbage:
                 total = 0
         print("Pegging completed!\n")
 
+    def peg(self):
+        # self.player = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')]
+        # self.computer = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')] DeBUGGING
+        # While players have cards left, alternate placing one card at a time until total of 31.
+        # Make copies of the hands so the originals are unaffected
+        player_hand = self.player.copy()
+        computer_hand = self.computer.copy()
+        total = 0
+
+        def computer_plays(hand, tot):
+            card_index = randint(0, len(hand) - 1)
+            card = hand[card_index]
+            if card.value + tot <= 31:
+                chosen_card = card
+            else:
+                chosen_card = hand[0]
+            print("Computer plays", chosen_card)
+            self.table.append(hand.pop(card_index))
+            tot += chosen_card.value
+            print(self.table, "Sum =", tot)
+            return hand, tot
+
+        def player_plays(hand, tot):
+            print("Available cards:", player_hand)
+            while True:
+                player_choice = (int(input(f"Type card index (1 to {len(hand)}) to play: ")) - 1)
+                chosen_card = hand[player_choice]
+                if chosen_card.value + tot <= 31:
+                    break
+                else:
+                    print("Total must not exceed 31. Try again.")
+            self.table.append(hand.pop(player_choice))
+            tot += chosen_card.value
+            print("You play", chosen_card)
+            print(self.table, "Sum =", tot)
+            return hand, tot
+
+        def get_table_score():
+            score = 0
+            cards_down = len(self.table)
+            if cards_down == 1:
+                return score
+            # Scoring below
+            if sum(map(int, self.table)) == 15:
+                print("Fifteen!")
+                score += 2
+            elif sum(map(int, self.table)) == 31:
+                print("Thirty one!")
+                score += 2
+            if self.table[-1].rank == self.table[-2].rank:
+                if cards_down > 2 and self.table[-2].rank == self.table[-3].rank:
+                    if cards_down > 3 and self.table[-3].rank == self.table[-4].rank:
+                        print("Quads!")
+                        score += 12
+                    else:
+                        print("Trips!")
+                        score += 6
+                else:
+                    print("Pair!")
+                    score += 2
+            if cards_down > 2:
+                for i in range(cards_down - 2):
+                    if Cribbage.is_run(self.table[i:]):
+                        run_length = cards_down - i
+                        print(f"Run of {run_length}!")
+                        score += run_length
+                        break
+            return score
+        # Non dealer goes first
+        print("\nLet the pegging begin!")
+        if self.player_is_dealer:
+            computer_hand, total = computer_plays(computer_hand, total)
+        players_turn = True
+
+        # PEGGING FINALLY GOT IT TO ALTERNATE IN A LOOP
+        while len(player_hand) or len(computer_hand):  # while someone has cards left
+            # time.sleep(1) debugging
+            player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
+            computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
+            if players_turn and player_can_play:
+                player_hand, total = player_plays(player_hand, total)
+                players_turn = not computer_can_play
+            elif computer_can_play:
+                computer_hand, total = computer_plays(computer_hand, total)
+                players_turn = True
+            else:
+                print("End of stack!\n")
+                self.table.clear()
+                total = 0
+
+        print("Pegging completed!\n")
+
     @staticmethod
     def is_run(cards):
         cards.sort(key=lambda c: c.rank)
@@ -150,9 +241,8 @@ class Cribbage:
             if cards[i].rank - cards[i + 1].rank != -1:
                 return False
         return True
-
     @staticmethod
-    def get_score(hand):
+    def get_hand_score(hand):
         score = 0
         card_groups = reversed(list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1))))
         runs_of_4 = 0
