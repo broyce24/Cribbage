@@ -179,7 +179,7 @@ class Cribbage:
             print(self.table, "Sum =", tot)
             return hand, tot
 
-        def get_table_score():
+        def get_table_score(): #
             score = 0
             cards_down = len(self.table)
             if cards_down == 1:

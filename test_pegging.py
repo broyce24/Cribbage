@@ -52,7 +52,7 @@ def play():
                     print("Quads!")
                     score += 12
                 else:
-                    print("Trips!")
+                    print("Trips!") #
                     score += 6
             else:
                 print("Pair!")
