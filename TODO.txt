@@ -1,11 +1,10 @@
 CRUCIAL:
 
-Implement scoring for pegging
-
 Extra points for flipping a jack or having a jack that matches the suit of the flip card
 
-Pick a card in the deck to decide who deals.
+Special flush rules (only 5-card counts in the crib, and a 4-card flush only counts if the cards were all hand cards)
 
+Game finishes as soon as someone hits 121 (Use a class to keep track of score, so when set_attr occurs you can check the total)
 EXTRA:
 
 Make computer choose cards for crib instead of random selection
@@ -14,6 +13,8 @@ Use a single variable to store a list of two lists for the players' hands so we 
 
 Confirm crib choices
 
-Special flush rules (only 5-card counts in the crib, and a 4-card flush only counts if the cards were all hand cards)
+
 
 Breakdown of score
+
+2-player mode
