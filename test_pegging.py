@@ -9,7 +9,11 @@ c4 = Card(4, "D")
 c5 = Card(5, "C")
 c6 = Card(6, "C")
 c7 = Card(7, "S")
-test_hand = [c1, c2, c3, c4, c5, c6, c7]
+c8 = Card(7, "S")
+c9 = Card(7, "S")
+c10 = Card(7, "S")
+test_hand = [c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]
+
 table = []
 
 
@@ -23,7 +27,6 @@ def is_run(cards):
 
 def play() -> None:
     # test cases: 5, 5, 1, 2, 3
-
 
     score = 0
     ongoing_run = False
@@ -55,11 +58,12 @@ def play() -> None:
                 print("Pair!")
                 score += 2
         if cards_down > 2:
-            run_length = 3
-            while run_length <= cards_down and is_run(table[-run_length:]):
-                run_length += 1
-            print(f"Run of {run_length - 1}!")
-            score += run_length
+            for i in range(cards_down - 2):
+                if is_run(table[i:]):
+                    run_length = cards_down - i
+                    print(f"Run of {run_length}!")
+                    score += run_length
+                    break
     print(table, "score:", score)
 
 
@@ -68,6 +72,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 # Need to add hitting 31 as a score in pegging
 # Need to recognize runs that don't start at the first card
 # Also do I need the self.player_is_dealer thing?
