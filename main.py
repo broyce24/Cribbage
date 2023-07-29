@@ -236,7 +236,7 @@ class Cribbage:
 
     @staticmethod
     def is_run(cards):
-        cards.sort(key=lambda c: c.rank)
+        cards = sorted(cards, key=lambda c: c.rank)
         for i in range(len(cards) - 1):
             if cards[i].rank - cards[i + 1].rank != -1:
                 return False
@@ -275,9 +275,9 @@ class Cribbage:
         full_hand_player = sorted(self.player + [self.flip_card], key=lambda c: c.rank)
         full_hand_computer = sorted(self.computer + [self.flip_card], key=lambda c: c.rank)
         full_hand_crib = sorted((self.crib + [self.flip_card]), key=lambda c: c.rank)
-        player_score = Cribbage.get_score(full_hand_player)
-        computer_score = Cribbage.get_score(full_hand_computer)
-        crib_score = Cribbage.get_score(full_hand_crib)
+        player_score = Cribbage.get_hand_score(full_hand_player)
+        computer_score = Cribbage.get_hand_score(full_hand_computer)
+        crib_score = Cribbage.get_hand_score(full_hand_crib)
         if self.player_is_dealer:
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)
