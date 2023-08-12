@@ -76,8 +76,7 @@ class Cribbage:
         # Printing information
         print("\nFlip card:", self.flip_card)
         print("Hand:", self.player)
-        print("Computer hand:", self.computer)  # DEBUGGING
-        print(f"{target} Crib:", self.crib)  # DEBUGGING
+
     def pegging_original(self):
         # self.player = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')]
         # self.computer = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')] DeBUGGING
@@ -143,8 +142,6 @@ class Cribbage:
         print("Pegging completed!\n")
 
     def peg(self):
-        # self.player = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')]
-        # self.computer = [Card(10, 'S'), Card(10, 'S'), Card(10, 'S'), Card(10, 'S')] DeBUGGING
         # While players have cards left, alternate placing one card at a time until total of 31.
         # Make copies of the hands so the originals are unaffected
         player_hand = self.player.copy()
@@ -218,14 +215,15 @@ class Cribbage:
 
         # PEGGING FINALLY GOT IT TO ALTERNATE IN A LOOP
         while len(player_hand) or len(computer_hand):  # while someone has cards left
-            # time.sleep(1) debugging
             player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
             computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
             if players_turn and player_can_play:
                 player_hand, total = player_plays(player_hand, total)
+                self.player_score = get_table_score()
                 players_turn = not computer_can_play
             elif computer_can_play:
                 computer_hand, total = computer_plays(computer_hand, total)
+                self.computer_score = get_table_score()
                 players_turn = True
             else:
                 print("End of stack!\n")
