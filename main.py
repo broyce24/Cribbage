@@ -60,57 +60,48 @@ class Cribbage:
 
         # Cutting the deck
         if player_deals:
-            cut = randint(0, 39)
+            cut = randint(1, 39)
             print("Computer chooses", cut, "card" if cut == 1 else "cards", "to cut.")
         else:
-            cut = int(input("How many cards would you like to cut? Enter a number from 0-39: "))
             while True:  # this is just to catch numbers outside the cut range
-                if 0 <= cut <= 39:
+                cut = int(input("How many cards would you like to cut? Enter a number from 1-39: "))
+                if 1 <= cut <= 39:
                     break
-                cut = int(input("Try again. Enter a number from 0-39: "))
             print("Cutting", cut, "card." if cut == 1 else "cards.")
         self.flip_card = self.deck[cut]
 
         # Printing information
         print("\nFlip card:", self.flip_card)
         print("Hand:", self.player)
-        print("Computer hand:", self.computer)  # DEBUGGING
-        print(f"{target} Crib:", self.crib)  # DEBUGGING
 
     def peg(self):
         player_hand = self.player.copy()
         computer_hand = self.computer.copy()
         total = 0
 
-        def computer_plays(hand, tot):
-            card_index = randint(0, len(hand) - 1)
-            card = hand[card_index]
-            if card.value + tot <= 31:
-                chosen_card = card
+        def play(player):
+            nonlocal player_hand, computer_hand, total
+            if player == 'computer':
+                while True:  # Making sure we get a card that doesn't go over 31
+                    card_index = randint(0, len(computer_hand) - 1)
+                    card = computer_hand[card_index]
+                    if card.value + total <= 31:
+                        break
+                self.table.append(computer_hand.pop(card_index))
+                print("Computer plays", card)
+                self.computer_score += get_table_score()
             else:
-                chosen_card = hand[0]
-            print("Computer plays", chosen_card)
-            self.table.append(hand.pop(card_index))
-            tot += chosen_card.value
-            self.computer_score += get_table_score()
-            print(self.table, "Sum =", tot)
-            return hand, tot
-
-        def player_plays(hand, tot):
-            print("Available cards:", player_hand)
-            while True:
-                player_choice = (int(input(f"Type card index (1 to {len(hand)}) to play: ")) - 1)
-                chosen_card = hand[player_choice]
-                if chosen_card.value + tot <= 31:
-                    break
-                else:
-                    print("Total must not exceed 31. Try again.")
-            print("You play", chosen_card)
-            self.table.append(hand.pop(player_choice))
-            tot += chosen_card.value
-            self.player_score += get_table_score()
-            print(self.table, "Sum =", tot)
-            return hand, tot
+                while True:
+                    print("Hand:", player_hand)
+                    card_index = int(input(f"Type card index (1 to {len(player_hand)}) to play: ")) - 1
+                    card = player_hand[card_index]
+                    if card.value + total <= 31:
+                        break
+                self.table.append(player_hand.pop(card_index))
+                print("You play", card)
+                self.player_score += get_table_score()
+            total += card.value
+            print(self.table, "Sum =", total, end="\n\n")
 
         def get_table_score():
             score = 0
@@ -150,7 +141,7 @@ class Cribbage:
         # Non dealer goes first
         print("\nLet the pegging begin!")
         if self.player_is_dealer:
-            computer_hand, total = computer_plays(computer_hand, total)
+            play("computer")
         players_turn = True
 
         # PEGGING FINALLY GOT IT TO ALTERNATE IN A LOOP
@@ -159,19 +150,20 @@ class Cribbage:
             player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
             computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
             if players_turn and player_can_play:
-                player_hand, total = player_plays(player_hand, total)
+                play("player")
                 players_turn = not computer_can_play
             elif computer_can_play:
-                computer_hand, total = computer_plays(computer_hand, total)
+                play("computer")
                 players_turn = True
             else:
                 print("End of stack!\n")
                 self.table.clear()
                 total = 0
 
-        print("Pegging completed!\n")
+        print("Pegging completed!")
         print("Computer's score:", self.computer_score)
         print("Player's score:", self.player_score)
+        print()
 
     @staticmethod
     def is_run(cards):
@@ -182,42 +174,42 @@ class Cribbage:
                 return False
         return True
 
-    @staticmethod
-    def get_hand_score(hand):
-        score = 0
-        card_groups = reversed(list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1))))
-        runs_of_4 = 0
-        runs_of_5 = 0
-        for group in card_groups:
-            if sum(map(int, group)) == 15:
-                score += 2
-            if len(group) == 5:
-                if len({card.suit for card in group}) == 1:
-                    score += 5
-                if Cribbage.is_run(group):
-                    score += 5
-                    runs_of_5 += 1
-            elif len(group) == 4:
-                if len({card.suit for card in group}) == 1:
-                    score += 4
-                if runs_of_5 == 0 and Cribbage.is_run(group):
-                    score += 4
-                    runs_of_4 += 1
-            elif len(group) == 3:
-                if runs_of_4 + runs_of_5 == 0 and Cribbage.is_run(group):
-                    score += 3
-            elif len(group) == 2:
-                if group[0].rank == group[1].rank:
-                    score += 2
-        return score
-
     def scoring(self):
+
+        def get_hand_score(hand):
+            score = 0
+            card_groups = reversed(list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1))))
+            runs_of_4 = 0
+            runs_of_5 = 0
+            for group in card_groups:
+                if sum(map(int, group)) == 15:
+                    score += 2
+                if len(group) == 5:
+                    if len({card.suit for card in group}) == 1:
+                        score += 5
+                    if Cribbage.is_run(group):
+                        score += 5
+                        runs_of_5 += 1
+                elif len(group) == 4:
+                    if len({card.suit for card in group}) == 1:
+                        score += 4
+                    if runs_of_5 == 0 and Cribbage.is_run(group):
+                        score += 4
+                        runs_of_4 += 1
+                elif len(group) == 3:
+                    if runs_of_4 + runs_of_5 == 0 and Cribbage.is_run(group):
+                        score += 3
+                elif len(group) == 2:
+                    if group[0].rank == group[1].rank:
+                        score += 2
+            return score
+
         full_hand_player = sorted(self.player + [self.flip_card], key=lambda c: c.rank)
         full_hand_computer = sorted(self.computer + [self.flip_card], key=lambda c: c.rank)
         full_hand_crib = sorted((self.crib + [self.flip_card]), key=lambda c: c.rank)
-        player_score = Cribbage.get_hand_score(full_hand_player)
-        computer_score = Cribbage.get_hand_score(full_hand_computer)
-        crib_score = Cribbage.get_hand_score(full_hand_crib)
+        player_score = get_hand_score(full_hand_player)
+        computer_score = get_hand_score(full_hand_computer)
+        crib_score = get_hand_score(full_hand_crib)
         if self.player_is_dealer:
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)
@@ -236,8 +228,10 @@ class Cribbage:
             print("Crib score:", crib_score)
             self.player_score += player_score
             self.computer_score += computer_score + crib_score
+        print()
         print("You have", self.player_score, "points.")
         print("Computer has", self.computer_score, "points.")
+        print()
         self.player.clear()
         self.computer.clear()
         self.table.clear()
