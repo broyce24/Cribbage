@@ -3,6 +3,7 @@ Ben Royce
 This is a program to emulate the game of Cribbage.
 """
 from Card import Card
+from Score import Score
 from random import shuffle, randint
 import time
 from itertools import chain, combinations
@@ -14,17 +15,40 @@ class Cribbage:
         self.deck = self.cards.copy()
         shuffle(self.deck)
         self.player = []
-        self.player_score = 0
+        self.player_score = Score('You')
         self.computer = []
-        self.computer_score = 0
+        self.computer_score = Score('Computer')
         self.crib = []
         self.table = []
         self.player_is_dealer = True
         self.flip_card = None
 
+    @staticmethod
+    def request_card_index(message, low, high):
+        """
+        Performs input validation when prompting the user to select a card.
+        :param message: A string to be displayed to the user when asking for the card. Do not include a trailing space.
+        :param low: The smallest valid index.
+        :param high: The largest valid index.
+        :return: A valid card index given by the user.
+        """
+        while True:
+            index = input(message + f" Enter a number from {low} to {high}: ")
+            try:
+                index = int(index)
+            except:
+                print("Please enter an integer.")
+                continue
+            if not (low <= index <= high):
+                print("Please enter a valid integer.")
+                continue
+            break
+        return index
+
+
     def pick_first_dealer(self):
         while True:
-            player_choice = self.deck[int(input("Pick a card from the deck! Type an index from 1-52: ")) - 1]
+            player_choice = self.deck[Cribbage.request_card_index("Pick a card from the deck!", 1, 52) - 1]
             computer_choice = self.deck[randint(1, 52)]
             print("The card you chose is", player_choice)
             print("The computer chose", computer_choice)
@@ -53,7 +77,7 @@ class Cribbage:
         print(f"Choose two cards to contribute to {target} crib.")
         for i in range(2):
             print("Hand:", self.player)
-            crib_card = int(input(f"Type card index (1 to {6 - i}) to contribute it: "))
+            crib_card = Cribbage.request_card_index(f"Type card index (1 to {6 - i}) to contribute it:", 1, 6 - i)
             self.crib.append(self.player.pop(crib_card - 1))
             self.crib.append(self.computer.pop(randint(0, 6 - i - 1)))  # Computer randomly chooses crib cards
         print("Selection:", self.crib[::2])  # Shows only the player's contribution
@@ -63,10 +87,7 @@ class Cribbage:
             cut = randint(1, 39)
             print("Computer chooses", cut, "card" if cut == 1 else "cards", "to cut.")
         else:
-            while True:  # this is just to catch numbers outside the cut range
-                cut = int(input("How many cards would you like to cut? Enter a number from 1-39: "))
-                if 1 <= cut <= 39:
-                    break
+            cut = Cribbage.request_card_index("How many cards would you like to cut?", 1, 39)
             print("Cutting", cut, "card." if cut == 1 else "cards.")
         self.flip_card = self.deck[cut]
 
@@ -93,10 +114,12 @@ class Cribbage:
             else:
                 while True:
                     print("Hand:", player_hand)
-                    card_index = int(input(f"Type card index (1 to {len(player_hand)}) to play: ")) - 1
+                    card_index = Cribbage.request_card_index("Choose a card to play.", 1, len(player_hand)) - 1
                     card = player_hand[card_index]
-                    if card.value + total <= 31:
-                        break
+                    if card.value + total > 31:
+                        print("Total cannot exceed 31. Try again.")
+                        continue
+                    break
                 self.table.append(player_hand.pop(card_index))
                 print("You play", card)
                 self.player_score += get_table_score()
