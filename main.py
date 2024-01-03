@@ -3,6 +3,8 @@ Ben Royce
 This is a program to emulate the game of Cribbage.
 """
 from Card import Card
+#from Player import Player
+#from Computer import Computer
 from Score import Score
 from random import shuffle, randint
 import time
@@ -15,9 +17,9 @@ class Cribbage:
         self.deck = self.cards.copy()
         shuffle(self.deck)
         self.player = []
-        self.player_score = Score('You')
+        self.player_score = Score()
         self.computer = []
-        self.computer_score = Score('Computer')
+        self.computer_score = Score()
         self.crib = []
         self.table = []
         self.player_is_dealer = True
@@ -49,7 +51,7 @@ class Cribbage:
     def pick_first_dealer(self):
         while True:
             player_choice = self.deck[Cribbage.request_card_index("Pick a card from the deck!", 1, 52) - 1]
-            computer_choice = self.deck[randint(1, 52)]
+            computer_choice = self.deck[randint(0, 51)]
             print("The card you chose is", player_choice)
             print("The computer chose", computer_choice)
             if player_choice.rank == computer_choice.rank:
@@ -77,7 +79,7 @@ class Cribbage:
         print(f"Choose two cards to contribute to {target} crib.")
         for i in range(2):
             print("Hand:", self.player)
-            crib_card = Cribbage.request_card_index(f"Type card index (1 to {6 - i}) to contribute it:", 1, 6 - i)
+            crib_card = Cribbage.request_card_index("", 1, 6 - i)
             self.crib.append(self.player.pop(crib_card - 1))
             self.crib.append(self.computer.pop(randint(0, 6 - i - 1)))  # Computer randomly chooses crib cards
         print("Selection:", self.crib[::2])  # Shows only the player's contribution
@@ -169,7 +171,6 @@ class Cribbage:
 
         # PEGGING FINALLY GOT IT TO ALTERNATE IN A LOOP
         while len(player_hand) or len(computer_hand):  # while someone has cards left
-            # time.sleep(1) debugging
             player_can_play = len(player_hand) and (player_hand[0].value + total <= 31)
             computer_can_play = len(computer_hand) and (computer_hand[0].value + total <= 31)
             if players_turn and player_can_play:
@@ -184,8 +185,8 @@ class Cribbage:
                 total = 0
 
         print("Pegging completed!")
-        print("Computer's score:", self.computer_score)
-        print("Player's score:", self.player_score)
+        print("Computer's score:", self.computer_score.get_score())
+        print("Player's score:", self.player_score.get_score())
         print()
 
     @staticmethod
@@ -252,8 +253,8 @@ class Cribbage:
             self.player_score += player_score
             self.computer_score += computer_score + crib_score
         print()
-        print("You have", self.player_score, "points.")
-        print("Computer has", self.computer_score, "points.")
+        print("You have", self.player_score.get_score(), "points.")
+        print("Computer has", self.computer_score.get_score(), "points.")
         print()
         self.player.clear()
         self.computer.clear()
