@@ -1,14 +1,13 @@
 """
 Ben Royce
 This is a program to emulate the game of Cribbage.
+"computer" or "player"
 """
 from Card import Card
-#from Player import Player
-#from Computer import Computer
-from Score import Score
 from random import shuffle, randint
-import time
 from itertools import chain, combinations
+
+MAX_SCORE = 121
 
 
 class Cribbage:
@@ -17,40 +16,17 @@ class Cribbage:
         self.deck = self.cards.copy()
         shuffle(self.deck)
         self.player = []
-        self.player_score = Score()
+        self.player_score = 0
         self.computer = []
-        self.computer_score = Score()
+        self.computer_score = 0
         self.crib = []
         self.table = []
         self.player_is_dealer = True
         self.flip_card = None
 
-    @staticmethod
-    def request_card_index(message, low, high):
-        """
-        Performs input validation when prompting the user to select a card.
-        :param message: A string to be displayed to the user when asking for the card. Do not include a trailing space.
-        :param low: The smallest valid index.
-        :param high: The largest valid index.
-        :return: A valid card index given by the user.
-        """
-        while True:
-            index = input(message + f" Enter a number from {low} to {high}: ")
-            try:
-                index = int(index)
-            except:
-                print("Please enter an integer.")
-                continue
-            if not (low <= index <= high):
-                print("Please enter a valid integer.")
-                continue
-            break
-        return index
-
-
     def pick_first_dealer(self):
         while True:
-            player_choice = self.deck[Cribbage.request_card_index("Pick a card from the deck!", 1, 52) - 1]
+            player_choice = self.deck[request_card_index("Pick a card from the deck! ", 1, 52) - 1]
             computer_choice = self.deck[randint(0, 51)]
             print("The card you chose is", player_choice)
             print("The computer chose", computer_choice)
@@ -79,7 +55,7 @@ class Cribbage:
         print(f"Choose two cards to contribute to {target} crib.")
         for i in range(2):
             print("Hand:", self.player)
-            crib_card = Cribbage.request_card_index("", 1, 6 - i)
+            crib_card = request_card_index("", 1, 6 - i)
             self.crib.append(self.player.pop(crib_card - 1))
             self.crib.append(self.computer.pop(randint(0, 6 - i - 1)))  # Computer randomly chooses crib cards
         print("Selection:", self.crib[::2])  # Shows only the player's contribution
@@ -89,7 +65,7 @@ class Cribbage:
             cut = randint(1, 39)
             print("Computer chooses", cut, "card" if cut == 1 else "cards", "to cut.")
         else:
-            cut = Cribbage.request_card_index("How many cards would you like to cut?", 1, 39)
+            cut = request_card_index("How many cards would you like to cut? ", 1, 39)
             print("Cutting", cut, "card." if cut == 1 else "cards.")
         self.flip_card = self.deck[cut]
 
@@ -112,11 +88,11 @@ class Cribbage:
                         break
                 self.table.append(computer_hand.pop(card_index))
                 print("Computer plays", card)
-                self.computer_score += get_table_score()
+                self.computer_score = add_score(self.computer_score, get_table_score(), "computer")
             else:
                 while True:
                     print("Hand:", player_hand)
-                    card_index = Cribbage.request_card_index("Choose a card to play.", 1, len(player_hand)) - 1
+                    card_index = request_card_index("Choose a card to play. ", 1, len(player_hand)) - 1
                     card = player_hand[card_index]
                     if card.value + total > 31:
                         print("Total cannot exceed 31. Try again.")
@@ -124,7 +100,7 @@ class Cribbage:
                     break
                 self.table.append(player_hand.pop(card_index))
                 print("You play", card)
-                self.player_score += get_table_score()
+                self.player_score = add_score(self.player_score, get_table_score(), "player")
             total += card.value
             print(self.table, "Sum =", total, end="\n\n")
 
@@ -156,7 +132,7 @@ class Cribbage:
 
             if cards_down > 2:
                 for i in range(cards_down - 2):
-                    if Cribbage.is_run(self.table[i:]):
+                    if is_run(self.table[i:]):
                         run_length = cards_down - i
                         print(f"Run of {run_length}! (+{run_length})")
                         score += run_length
@@ -183,20 +159,10 @@ class Cribbage:
                 print("End of stack!\n")
                 self.table.clear()
                 total = 0
-
         print("Pegging completed!")
-        print("Computer's score:", self.computer_score.get_score())
-        print("Player's score:", self.player_score.get_score())
+        print("Computer's score:", self.computer_score)
+        print("Player's score:", self.player_score)
         print()
-
-    @staticmethod
-    def is_run(cards):
-        if isinstance(cards, list):
-            cards.sort(key=lambda c: c.rank)
-        for i in range(len(cards) - 1):
-            if cards[i].rank - cards[i + 1].rank != -1:
-                return False
-        return True
 
     def scoring(self):
 
@@ -211,17 +177,17 @@ class Cribbage:
                 if len(group) == 5:
                     if len({card.suit for card in group}) == 1:
                         score += 5
-                    if Cribbage.is_run(group):
+                    if is_run(group):
                         score += 5
                         runs_of_5 += 1
                 elif len(group) == 4:
                     if len({card.suit for card in group}) == 1:
                         score += 4
-                    if runs_of_5 == 0 and Cribbage.is_run(group):
+                    if runs_of_5 == 0 and is_run(group):
                         score += 4
                         runs_of_4 += 1
                 elif len(group) == 3:
-                    if runs_of_4 + runs_of_5 == 0 and Cribbage.is_run(group):
+                    if runs_of_4 + runs_of_5 == 0 and is_run(group):
                         score += 3
                 elif len(group) == 2:
                     if group[0].rank == group[1].rank:
@@ -237,24 +203,26 @@ class Cribbage:
         if self.player_is_dealer:
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)
+            self.computer_score = add_score(self.computer_score, computer_score, "computer")
             print("Your hand:", full_hand_player)
             print("Your score:", player_score)
+            self.player_score = add_score(self.player_score, player_score, "player")
             print("Your crib:", full_hand_crib)
             print("Crib score:", crib_score)
-            self.computer_score += computer_score
-            self.player_score += player_score + crib_score
+            self.player_score = add_score(self.player_score, crib_score, "player")
         else:
             print("Your hand:", full_hand_player)
             print("Your score:", player_score)
+            self.player_score = add_score(self.player_score, player_score, "player")
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)
+            self.computer_score = add_score(self.computer_score, computer_score, "computer")
             print("Computer's crib:", full_hand_crib)
             print("Crib score:", crib_score)
-            self.player_score += player_score
-            self.computer_score += computer_score + crib_score
+            self.computer_score = add_score(self.computer_score, crib_score, "computer")
         print()
-        print("You have", self.player_score.get_score(), "points.")
-        print("Computer has", self.computer_score.get_score(), "points.")
+        print("You have", self.player_score, "points.")
+        print("Computer has", self.computer_score, "points.")
         print()
         self.player.clear()
         self.computer.clear()
@@ -262,6 +230,54 @@ class Cribbage:
         self.crib.clear()
         self.deck = self.cards.copy()
         shuffle(self.deck)
+
+
+def request_card_index(message, low, high):
+    """
+    Performs input validation when prompting the user to select a card.
+    :param message: A string to be displayed to the user when asking for the card. Do not include a trailing space.
+    :param low: The smallest valid index.
+    :param high: The largest valid index.
+    :return: A valid card index given by the user.
+    """
+    while True:
+        index = input(message + f"Enter a number from {low} to {high}: ")
+        try:
+            index = int(index)
+        except:
+            print("Please enter an integer.")
+            continue
+        if not (low <= index <= high):
+            print("Please enter a valid integer.")
+            continue
+        break
+    return index
+
+
+def is_run(cards):
+    if isinstance(cards, list):
+        cards.sort(key=lambda c: c.rank)
+    for i in range(len(cards) - 1):
+        if cards[i].rank - cards[i + 1].rank != -1:
+            return False
+    return True
+
+
+def add_score(curr_score, points, owner):
+    if curr_score + points >= MAX_SCORE:
+        if owner == "player":
+            print(f"{MAX_SCORE} points reached! YOU WIN!")
+        else:
+            print(f"{MAX_SCORE} points reached! COMPUTER WINS!")
+        while True:
+            response = input("Would you like to play again? Enter Y/N: ")
+            if response.upper() == "Y":
+                main()
+            elif response.upper() == "N":
+                print("Goodbye.")
+                quit()
+    else:
+        return curr_score + points
 
 
 def main():
@@ -274,5 +290,5 @@ def main():
         player_deals = not player_deals  # alternate dealer
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
