@@ -6,7 +6,6 @@ class Card:
 
     def __int__(self):
         return self.value
-
     def __repr__(self):
         ranks = {1: "A", 11: "J", 12: "Q", 13: "K"}
         if self.rank in ranks:
