@@ -1,4 +1,4 @@
-"""
+﻿"""
 Ben Royce
 This is a program to emulate the game of Cribbage.
 "computer" or "player"
@@ -8,6 +8,60 @@ from random import shuffle, randint
 from itertools import chain, combinations
 
 MAX_SCORE = 121
+
+
+def request_card_index(message, low, high):
+    """
+    Performs input validation when prompting the user to select a card.
+    :param message: A string to be displayed to the user when asking for the card. Do not include a trailing space.
+    :param low: The smallest valid index.
+    :param high: The largest valid index.
+    :return: A valid card index given by the user.
+    """
+    while True:
+        index = input(message + f"Enter a number from {low} to {high}: ")
+        try:
+            index = int(index)
+        except:
+            print("Please enter an integer.")
+            continue
+        if not (low <= index <= high):
+            print("Please enter a valid integer.")
+            continue
+        break
+    return index
+
+
+def is_run(cards):
+    if isinstance(cards, list):
+        cards.sort(key=lambda c: c.rank)
+    for i in range(len(cards) - 1):
+        if cards[i].rank - cards[i + 1].rank != -1:
+            return False
+    return True
+
+
+def restart_game():
+    while True:
+        response = input("Would you like to play again? Enter Y/N: ")
+        if response.upper() == "Y":
+            main()
+        elif response.upper() == "N":
+            print("Goodbye.")
+            quit()
+
+
+def add_score(game_obj, points, owner):
+    if owner == "player":
+        game_obj.player_score += points
+        if game_obj.player_score >= MAX_SCORE:
+            print(f"{MAX_SCORE} points reached! YOU WIN!")
+            restart_game()
+    else:
+        game_obj.computer_score += points
+        if game_obj.computer_score >= MAX_SCORE:
+            print(f"{MAX_SCORE} points reached! COMPUTER WINS!")
+            restart_game()
 
 
 class Cribbage:
@@ -69,8 +123,25 @@ class Cribbage:
             print("Cutting", cut, "card." if cut == 1 else "cards.")
         self.flip_card = self.deck[cut]
 
-        # Printing information
+        # Printing information and special Jack rules
         print("\nFlip card:", self.flip_card)
+        if self.flip_card.rank == 11:
+            print("His heels! (+2)")
+            if player_deals:
+                add_score(self, 2, "player")
+            else:
+                add_score(self, 2, "computer")
+        else:
+            for card in self.player:
+                if card.rank == 11:
+                    if card.suit == self.flip_card.suit:
+                        print("Nobs! (+1)")
+                        add_score(self, 1, "player")
+            for card in self.computer:
+                if card.rank == 11:
+                    if card.suit == self.flip_card.suit:
+                        print("Nobs! (+1)")
+                        add_score(self, 1, "computer")
         print("Hand:", self.player)
 
     def peg(self):
@@ -88,7 +159,7 @@ class Cribbage:
                         break
                 self.table.append(computer_hand.pop(card_index))
                 print("Computer plays", card)
-                self.computer_score = add_score(self.computer_score, get_table_score(), "computer")
+                add_score(self, get_table_score(), "computer")
             else:
                 while True:
                     print("Hand:", player_hand)
@@ -100,9 +171,9 @@ class Cribbage:
                     break
                 self.table.append(player_hand.pop(card_index))
                 print("You play", card)
-                self.player_score = add_score(self.player_score, get_table_score(), "player")
+                add_score(self, get_table_score(), "player")
             total += card.value
-            print(self.table, "Sum =", total, end="\n\n")
+            print("Table:", self.table, "Sum =", total, end="\n\n")
 
         def get_table_score():
             score = 0
@@ -203,23 +274,23 @@ class Cribbage:
         if self.player_is_dealer:
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)
-            self.computer_score = add_score(self.computer_score, computer_score, "computer")
+            add_score(self, computer_score, "computer")
             print("Your hand:", full_hand_player)
             print("Your score:", player_score)
-            self.player_score = add_score(self.player_score, player_score, "player")
+            add_score(self, player_score, "player")
             print("Your crib:", full_hand_crib)
             print("Crib score:", crib_score)
-            self.player_score = add_score(self.player_score, crib_score, "player")
+            add_score(self, crib_score, "player")
         else:
             print("Your hand:", full_hand_player)
             print("Your score:", player_score)
-            self.player_score = add_score(self.player_score, player_score, "player")
+            add_score(self, player_score, "player")
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)
-            self.computer_score = add_score(self.computer_score, computer_score, "computer")
+            add_score(self, computer_score, "computer")
             print("Computer's crib:", full_hand_crib)
             print("Crib score:", crib_score)
-            self.computer_score = add_score(self.computer_score, crib_score, "computer")
+            add_score(self, crib_score, "computer")
         print()
         print("You have", self.player_score, "points.")
         print("Computer has", self.computer_score, "points.")
@@ -230,54 +301,6 @@ class Cribbage:
         self.crib.clear()
         self.deck = self.cards.copy()
         shuffle(self.deck)
-
-
-def request_card_index(message, low, high):
-    """
-    Performs input validation when prompting the user to select a card.
-    :param message: A string to be displayed to the user when asking for the card. Do not include a trailing space.
-    :param low: The smallest valid index.
-    :param high: The largest valid index.
-    :return: A valid card index given by the user.
-    """
-    while True:
-        index = input(message + f"Enter a number from {low} to {high}: ")
-        try:
-            index = int(index)
-        except:
-            print("Please enter an integer.")
-            continue
-        if not (low <= index <= high):
-            print("Please enter a valid integer.")
-            continue
-        break
-    return index
-
-
-def is_run(cards):
-    if isinstance(cards, list):
-        cards.sort(key=lambda c: c.rank)
-    for i in range(len(cards) - 1):
-        if cards[i].rank - cards[i + 1].rank != -1:
-            return False
-    return True
-
-
-def add_score(curr_score, points, owner):
-    if curr_score + points >= MAX_SCORE:
-        if owner == "player":
-            print(f"{MAX_SCORE} points reached! YOU WIN!")
-        else:
-            print(f"{MAX_SCORE} points reached! COMPUTER WINS!")
-        while True:
-            response = input("Would you like to play again? Enter Y/N: ")
-            if response.upper() == "Y":
-                main()
-            elif response.upper() == "N":
-                print("Goodbye.")
-                quit()
-    else:
-        return curr_score + points
 
 
 def main():

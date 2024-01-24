@@ -1,3 +1,7 @@
+RANKS = {1: "A", 11: "J", 12: "Q", 13: "K"}
+SUITS = {"S": "♠", "C": "♣", "H": "♥", "D": "♦"}
+
+
 class Card:
     def __init__(self, rank: int, suit: str):
         self.rank = rank
@@ -6,12 +10,10 @@ class Card:
 
     def __int__(self):
         return self.value
+
     def __repr__(self):
-        ranks = {1: "A", 11: "J", 12: "Q", 13: "K"}
-        if self.rank in ranks:
-            rank = ranks[self.rank]
+        if self.rank in RANKS:
+            rank = RANKS[self.rank]
         else:
             rank = str(self.rank)
-
-        suits = {"S": "♠", "C": "♣", "H": "♥", "D": "♦"}
-        return rank + suits[self.suit]
+        return rank + SUITS[self.suit]
