@@ -1,9 +1,3 @@
-CRUCIAL:
-
-Extra points for flipping a jack or having a jack that matches the suit of the flip card
-
-Special flush rules (only 5-card counts in the crib, and a 4-card flush only counts if the cards were all hand cards)
-
 EXTRA:
 
 Make computer choose cards for crib instead of random selection

@@ -123,6 +123,11 @@ class Cribbage:
             print("Cutting", cut, "card." if cut == 1 else "cards.")
         self.flip_card = self.deck[cut]
 
+
+        # DEBUG : CUSTOM HANDS
+        self.flip_card = Card(6, "H")
+        self.player = [Card(1, "H"), Card(7, "S"), Card(10, "H"), Card(11, "H")]
+
         # Printing information and special Jack rules
         print("\nFlip card:", self.flip_card)
         if self.flip_card.rank == 11:
@@ -242,17 +247,19 @@ class Cribbage:
             card_groups = reversed(list(chain.from_iterable(combinations(hand, r) for r in range(2, len(hand) + 1))))
             runs_of_4 = 0
             runs_of_5 = 0
+            flushes = 0
             for group in card_groups:
                 if sum(map(int, group)) == 15:
                     score += 2
                 if len(group) == 5:
                     if len({card.suit for card in group}) == 1:
                         score += 5
+                        flushes += 1
                     if is_run(group):
                         score += 5
                         runs_of_5 += 1
                 elif len(group) == 4:
-                    if len({card.suit for card in group}) == 1:
+                    if len({card.suit for card in group}) == 1 and flushes == 0 and self.flip_card not in group:
                         score += 4
                     if runs_of_5 == 0 and is_run(group):
                         score += 4
@@ -271,6 +278,7 @@ class Cribbage:
         player_score = get_hand_score(full_hand_player)
         computer_score = get_hand_score(full_hand_computer)
         crib_score = get_hand_score(full_hand_crib)
+        print(f"The flip card was {self.flip_card}.")
         if self.player_is_dealer:
             print("Computer's hand:", full_hand_computer)
             print("Computer's score:", computer_score)
